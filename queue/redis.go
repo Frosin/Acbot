@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/go-redis/redis"
-	_ "github.com/joho/godotenv/autoload"
+	"github.com/joho/godotenv"
 )
 
 type Redis struct {
@@ -30,7 +30,16 @@ func checkNoEmptyEnvs(envs []string) bool {
 }
 
 // Get redis options from .env file
-func getConnectOptions() (*redis.Options, error) {
+func getConnectOptions(envFile string) (*redis.Options, error) {
+	var err error
+	if envFile == "" {
+		err = godotenv.Load()
+	} else {
+		err = godotenv.Load(envFile)
+	}
+	if err != nil {
+		return &redis.Options{}, err
+	}
 	addr := os.Getenv("REDIS_ADDR")
 	password := os.Getenv("REDIS_PASSWORD")
 	dbStr := os.Getenv("REDIS_DB")
@@ -52,7 +61,7 @@ func getConnectOptions() (*redis.Options, error) {
 }
 
 // Get key value names from .env file
-func (r *Redis) serDatabaseKeys() error {
+func (r *Redis) setDatabaseKeys() error {
 	generalKey := os.Getenv("REDIS_GENERAL_KEY")
 	dbKey := os.Getenv("REDIS_DB_KEY")
 	currentKey := os.Getenv("REDIS_CURRENT_KEY")

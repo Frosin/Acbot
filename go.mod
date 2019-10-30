@@ -8,6 +8,7 @@ require (
 	github.com/elliotchance/redismock v1.5.3
 	github.com/go-redis/redis v6.15.6+incompatible
 	github.com/go-stack/stack v1.8.0 // indirect
+	github.com/golang/mock v1.3.1
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/gomodule/redigo v2.0.0+incompatible // indirect
 	github.com/google/go-cmp v0.3.1 // indirect
@@ -21,5 +22,6 @@ require (
 	github.com/yuin/gopher-lua v0.0.0-20190514113301-1cd887cd7036 // indirect
 	go.mongodb.org/mongo-driver v1.1.2
 	golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550 // indirect
+	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
 	gopkg.in/telegram-bot-api.v4 v4.6.4
 )

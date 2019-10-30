@@ -122,3 +122,24 @@ func TestSetRetry(t *testing.T) {
 	curActivation, err := c.Redis.GetFromKey(c.Redis.CurrentKey)
 	assert.Equal(t, true, curActivation.Retry, "Bad data in `Retry` field!")
 }
+
+func TestSetActivatorToEmpty(t *testing.T) {
+	c, err := getTestCurAct(t)
+	assert.NoError(t, err, "Error by getting queue!")
+	err = c.SetActivator(10500)
+	assert.Error(t, err, "Can't get error by setting data to empty field!")
+}
+
+func TestSetCompleteToEmpty(t *testing.T) {
+	c, err := getTestCurAct(t)
+	assert.NoError(t, err, "Error by getting queue!")
+	err = c.SetComplete()
+	assert.Error(t, err, "Can't get error by setting data to empty field!")
+}
+
+func TestSetRetryToEmpty(t *testing.T) {
+	c, err := getTestCurAct(t)
+	assert.NoError(t, err, "Error by getting queue!")
+	err = c.SetRetry()
+	assert.Error(t, err, "Can't get error by setting data to empty field!")
+}

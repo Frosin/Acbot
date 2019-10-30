@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -35,7 +36,16 @@ func checkNoEmptyEnvs(envs []string) bool {
 }
 
 // Get redis options from .env file
-func GetDbUri() (string, error) {
+func GetDbUri(envFile string) (string, error) {
+	var err error
+	if envFile == "" {
+		err = godotenv.Load()
+	} else {
+		err = godotenv.Load(envFile)
+	}
+	if err != nil {
+		return "", err
+	}
 	addr := os.Getenv("MONGO_ADDR")
 	user := os.Getenv("MONGO_USER")
 	password := os.Getenv("MONGO_PASS")
@@ -77,17 +87,16 @@ func (mc *MongoClient) Connect(connectionUri string) (err error) {
 	return err
 }
 
-func (mc *MongoCollection) Insert(document interface{}) (string, error) {
+func (mc *MongoCollection) Insert(document interface{}) (*primitive.ObjectID, error) {
 	insertResult, err := mc.Collection.InsertOne(context.Background(), document)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	objectId, ok := insertResult.InsertedID.(primitive.ObjectID)
-	if false == ok {
-		return "", errors.New("Can't parse insertId to ObjectId type!")
-	}
-	hexInsertId := objectId.Hex()
-	return hexInsertId, err
+	objectInsertId, _ := insertResult.InsertedID.(primitive.ObjectID)
+	// if false == ok {
+	// 	return nil, errors.New("Can't parse InsertId!")
+	// }
+	return &objectInsertId, err
 }
 
 func (mc *MongoCollection) GetByFilter(filter interface{}) (*mongo.Cursor, error) {

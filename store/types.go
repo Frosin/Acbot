@@ -3,12 +3,18 @@ package main
 import (
 	"acbot/types"
 	"os"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type MongoActivation interface {
-}
+//go:generate mockgen -source=../store/types.go -package=mocks -destination=../store/mocks/mock_mongo.go MongoInterface
 
-type MongoUser interface {
+type MongoInterface interface {
+	Connect(uri string) (err error)
+	InsertActivation(activation *types.Activation) (string, error)
+	GetActivations(filter interface{}) ([]*types.Activation, error)
+	InsertUser(user *types.User) (string, error)
+	GetUsers(filter interface{}) ([]*types.User, error)
 }
 
 type mongoRepository struct {
@@ -27,7 +33,7 @@ func (a *mongoRepository) checkConnect() {
 
 func (a *mongoRepository) Connect(uri string) (err error) {
 	if uri == "" {
-		uri, err = GetDbUri()
+		uri, err = GetDbUri("")
 		a.UserCollection = os.Getenv("MONGO_USER_COLLECTION")
 		a.ActivationCollection = os.Getenv("MONGO_ACTIVATION_COLLECTION")
 		a.DbName = os.Getenv("MONGO_DB")
@@ -37,8 +43,9 @@ func (a *mongoRepository) Connect(uri string) (err error) {
 	return
 }
 
-func (a *mongoRepository) InsertActivation(activation *types.Activation) (string, error) {
+func (a *mongoRepository) InsertActivation(activation *types.Activation) (*primitive.ObjectID, error) {
 	a.checkConnect()
+	activation.ID = primitive.NewObjectID()
 	return a.Mongo.Database(a.DbName).Collection(a.ActivationCollection).Insert(activation)
 }
 
@@ -47,8 +54,9 @@ func (a *mongoRepository) GetActivations(filter interface{}) ([]*types.Activatio
 	return a.Mongo.Database(a.DbName).Collection(a.ActivationCollection).GetActivationsByFilter(filter)
 }
 
-func (a *mongoRepository) InsertUser(user *types.User) (string, error) {
+func (a *mongoRepository) InsertUser(user *types.User) (*primitive.ObjectID, error) {
 	a.checkConnect()
+	user.ID = primitive.NewObjectID()
 	return a.Mongo.Database(a.DbName).Collection(a.UserCollection).Insert(user)
 }
 

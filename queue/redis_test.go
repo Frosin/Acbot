@@ -3,11 +3,13 @@ package main
 
 import (
 	"acbot/types"
+	"os"
 	"testing"
 	"time"
 
 	"github.com/alicebob/miniredis"
 	"github.com/go-redis/redis"
+	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -106,4 +108,46 @@ func TestGetQueueLength(t *testing.T) {
 	len, err := rediska.GetQueueLength()
 	assert.NoError(t, err, "Failed get queue length!")
 	assert.Equal(t, 4, int(len), "Entity count not valid!")
+}
+
+func TestGetConnectOptions(t *testing.T) {
+	redisOpts, err := getConnectOptions("")
+	assert.NoError(t, err, "Can't get options from .env!")
+	assert.NotEmpty(t, redisOpts, "Connect options not loaded from .env file!")
+	assert.NotEmpty(t, redisOpts.Addr, "Address not loaded from .env file!")
+}
+
+func TestBadEnvFile(t *testing.T) {
+	_, err := getConnectOptions("fileNotExists.env")
+	assert.Error(t, err, "Can't get error by get Bad file!")
+}
+
+func TestBadAddrEnvFile(t *testing.T) {
+	addr := os.Getenv("REDIS_ADDR")
+	db := os.Getenv("REDIS_DB")
+	os.Setenv("REDIS_ADDR", "")
+	os.Setenv("REDIS_DB", "")
+	_, err := getConnectOptions("")
+	os.Setenv("REDIS_ADDR", addr)
+	os.Setenv("REDIS_DB", db)
+	assert.Error(t, err, "Can't get error by empties env vars!")
+}
+
+func TestDabDbNum(t *testing.T) {
+	os.Setenv("REDIS_DB", "qwerty")
+	_, err := getConnectOptions("")
+	assert.Error(t, err, "Can't get error by bad db name!")
+}
+
+func TestSetDataBaseKeys(t *testing.T) {
+	var r Redis
+	err := godotenv.Load()
+	assert.NoError(t, err, "Can't load Env!")
+	err = r.setDatabaseKeys()
+	assert.NoError(t, err, "Can't load Env!")
+	os.Setenv("REDIS_GENERAL_KEY", "")
+	os.Setenv("REDIS_DB_KEY", "")
+	os.Setenv("REDIS_CURRENT_KEY", "")
+	err = r.setDatabaseKeys()
+	assert.Error(t, err, "Can't get error by empties envs!")
 }
