@@ -2,6 +2,7 @@ package main
 
 import (
 	"acbot/types"
+	"encoding/json"
 	"os"
 	"testing"
 	"time"
@@ -11,7 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-var testAct = types.Activation{
+var testAct = &types.Activation{
 	ID:        primitive.NewObjectID(),
 	Timestamp: time.Now(),
 	User:      123456,
@@ -20,10 +21,35 @@ var testAct = types.Activation{
 	Retry:     false,
 }
 
+var testUser = &types.User{
+	ID:           primitive.NewObjectID(),
+	ChatId:       0,
+	FirstName:    "Ivan",
+	LastName:     "Klepikov",
+	UserName:     "Klepik3",
+	Role:         "user",
+	Active:       true,
+	DeactiveTime: 0,
+}
+
 type TestConnectSettings struct {
 	client         *MongoClient
 	databaseName   string
 	collectionName string
+}
+
+type BadTestStruct struct {
+	ID        string `json:"id" bson:"_id"`
+	Activator int64  `json:"activator" bson:"activator"`
+	Role      string `json:"role" bson:"role"`
+}
+
+func (b *BadTestStruct) MarshalBinary() ([]byte, error) {
+	return json.Marshal(b)
+}
+
+func (b *BadTestStruct) UnmarshalBinary(data []byte) error {
+	return json.Unmarshal(data, b)
 }
 
 func TestBadConnect(t *testing.T) {
@@ -62,7 +88,11 @@ func TestInsert(t *testing.T) {
 }
 
 func TestParseInsertIdError(t *testing.T) {
-
+	_, collection := getClientConnection(t)
+	badData := BadTestStruct{ID: "Its bad data for test!"}
+	_, err := collection.Insert(&badData)
+	assert.Error(t, err, "Failed to get error by parse bad insertedId!")
+	dropCollection(collection, t)
 }
 
 func TestGetActivationsByFilter(t *testing.T) {
@@ -93,10 +123,9 @@ func TestGetActivationsByFilter(t *testing.T) {
 	_, collection := getClientConnection(t)
 	_, err := collection.Insert(testAct1)
 	assert.NoError(t, err, "Failed to insert data!")
-	_, err = collection.Insert(testAct2)
+	_, err = collection.Insert(&testAct2)
 	assert.NoError(t, err, "Failed to insert data!")
-	_, err = collection.Insert(testAct3)
-
+	_, err = collection.Insert(&testAct3)
 	assert.NoError(t, err, "Failed to insert data!")
 	filter := bson.D{primitive.E{Key: "activator", Value: 9876543}}
 	results, err := collection.GetActivationsByFilter(filter)
@@ -147,6 +176,49 @@ func TestGetUsersByFilter(t *testing.T) {
 	assert.NoError(t, err, "Failed to get activations from DB!")
 	assert.Equal(t, 1, len(results))
 	dropCollection(collection, t)
+}
+
+func TestActivationNoFind(t *testing.T) {
+	_, mCol := getClientConnection(t)
+	filter := "It's is a bad filter"
+	_, err := mCol.GetActivationsByFilter(filter)
+	assert.Error(t, err, "Failed to get Find error!")
+}
+
+func TestUsersNoFind(t *testing.T) {
+	_, mCol := getClientConnection(t)
+	filter := "It's is a bad filter"
+	_, err := mCol.GetUsersByFilter(filter)
+	assert.Error(t, err, "Failed to get Find error!")
+}
+
+func TestErrorDecode(t *testing.T) {
+	_, mCol := getClientConnection(t)
+	var badAct = &BadTestStruct{
+		ID:        "it's mongo _id",
+		Activator: 9876543,
+	}
+	mCol.Insert(testAct)
+	mCol.Insert(badAct)
+	filter := bson.D{primitive.E{Key: "activator", Value: 9876543}}
+	_, err := mCol.GetActivationsByFilter(filter)
+	assert.Error(t, err, "Failed to get Find Decode error!")
+	dropCollection(mCol, t)
+}
+
+func TestErrorUserDecode(t *testing.T) {
+	_, mCol := getClientConnection(t)
+	var badAct = &BadTestStruct{
+		ID:        "it's mongo _id",
+		Activator: 9876543,
+		Role:      "user",
+	}
+	mCol.Insert(testUser)
+	mCol.Insert(badAct)
+	filter := bson.D{primitive.E{Key: "role", Value: "user"}}
+	_, err := mCol.GetUsersByFilter(filter)
+	assert.Error(t, err, "Failed to get Find Decode error!")
+	dropCollection(mCol, t)
 }
 
 func TestEmptyGetResult(t *testing.T) {

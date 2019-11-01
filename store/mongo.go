@@ -1,5 +1,6 @@
 package main
 
+// go test -coverprofile=cover.out ./store && go tool cover -html=cover.out -o cover.html
 import (
 	"acbot/types"
 	"context"
@@ -92,10 +93,10 @@ func (mc *MongoCollection) Insert(document interface{}) (*primitive.ObjectID, er
 	if err != nil {
 		return nil, err
 	}
-	objectInsertId, _ := insertResult.InsertedID.(primitive.ObjectID)
-	// if false == ok {
-	// 	return nil, errors.New("Can't parse InsertId!")
-	// }
+	objectInsertId, ok := insertResult.InsertedID.(primitive.ObjectID)
+	if false == ok {
+		return nil, errors.New("Can't parse InsertId to ObjectId!")
+	}
 	return &objectInsertId, err
 }
 

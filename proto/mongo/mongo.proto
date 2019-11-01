@@ -1,0 +1,20 @@
+syntax = "proto3";
+ 
+package mongo_proto;
+
+service Mongo {
+    rpc InsertActivation (Activation) returns (ActivationInsertResult);
+}
+
+message Activation {
+    //ID        primitive.ObjectID `json:"id" bson:"_id"`
+	//Timestamp time.Time
+	int64 User = 1;
+	int64 Activator = 2;
+	bool Complete  = 3;
+	bool Retry = 4;   
+}
+
+message ActivationInsertResult {
+    string InsertId = 1;
+}

@@ -38,6 +38,9 @@ func (a *mongoRepository) Connect(uri string) (err error) {
 		a.ActivationCollection = os.Getenv("MONGO_ACTIVATION_COLLECTION")
 		a.DbName = os.Getenv("MONGO_DB")
 	}
+	//
+	//log.Println("*before Connect*", a.Mongo)
+	//
 	err = a.Mongo.Connect(uri)
 	a.Connected = true
 	return
