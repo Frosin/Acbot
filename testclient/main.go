@@ -2,30 +2,30 @@ package main
 
 import (
 	pb "acbot/proto/mongo"
-	"acbot/types"
 	"context"
 	"fmt"
 	"log"
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/grpc"
 )
 
-func activationToPb(act *types.Activation) *pb.Activation {
-	return &pb.Activation{
-		User:      act.User,
-		Activator: act.Activator,
-		Complete:  act.Complete,
-		Retry:     act.Retry,
-	}
-}
+// func activationToPb(act *types.Activation) *pb.Activation {
+// 	return &pb.Activation{
+// 		User:      act.User,
+// 		Activator: act.Activator,
+// 		Complete:  act.Complete,
+// 		Retry:     act.Retry,
+// 	}
+// }
 
 func main() {
 	conn, err := grpc.Dial("localhost:8081", grpc.WithInsecure())
 
-	var testAct = &types.Activation{
-		// ID:        primitive.NewObjectID(),
-		// Timestamp: time.Now(),
+	var testAct = &pb.Activation{
+		ID:        primitive.NewObjectID().String(),
+		Timestamp: time.Now().Format(time.RFC3339),
 		User:      123456,
 		Activator: 9876543,
 		Complete:  false,
@@ -42,7 +42,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	r, err := c.InsertActivation(ctx, activationToPb(testAct))
+	r, err := c.InsertActivation(ctx, testAct)
 	if err != nil {
 		log.Fatalf("Error by insert!", err)
 	}

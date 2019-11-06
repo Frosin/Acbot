@@ -3,18 +3,44 @@ syntax = "proto3";
 package mongo_proto;
 
 service Mongo {
-    rpc InsertActivation (Activation) returns (ActivationInsertResult);
+    rpc InsertActivation (Activation) returns (InsertResult);
+	rpc GetActivations (Filter) returns (GetActivationsResult);
+	rpc InsertUser (User) returns (InsertResult);
+	rpc GetUsers (Filter) returns (GetUsersResult);
 }
 
 message Activation {
-    //ID        primitive.ObjectID `json:"id" bson:"_id"`
-	//Timestamp time.Time
-	int64 User = 1;
-	int64 Activator = 2;
-	bool Complete  = 3;
-	bool Retry = 4;   
+	string ID = 1;
+	string Timestamp = 2;
+	int64 User = 3;
+	int64 Activator = 4;
+	bool Complete  = 5;
+	bool Retry = 6;   
 }
 
-message ActivationInsertResult {
+message User {
+	string ID = 1;
+	int64 ChatId = 2;       
+	string FirstName = 3;   
+	string LastName = 4;    
+	string UserName = 5;    
+	string Role = 6;        
+	bool Active = 7;      
+	int64 DeactiveTime = 8; 
+}
+
+message InsertResult {
     string InsertId = 1;
+}
+
+message Filter {
+	string Value = 1;
+}
+
+message GetUsersResult {
+	repeated User Users = 1;
+}
+
+message GetActivationsResult {
+	repeated Activation Activations = 1;
 }

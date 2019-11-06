@@ -25,12 +25,12 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type Activation struct {
-	//ID        primitive.ObjectID `json:"id" bson:"_id"`
-	//Timestamp time.Time
-	User                 int64    `protobuf:"varint,1,opt,name=User,proto3" json:"User,omitempty"`
-	Activator            int64    `protobuf:"varint,2,opt,name=Activator,proto3" json:"Activator,omitempty"`
-	Complete             bool     `protobuf:"varint,3,opt,name=Complete,proto3" json:"Complete,omitempty"`
-	Retry                bool     `protobuf:"varint,4,opt,name=Retry,proto3" json:"Retry,omitempty"`
+	ID                   string   `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	Timestamp            string   `protobuf:"bytes,2,opt,name=Timestamp,proto3" json:"Timestamp,omitempty"`
+	User                 int64    `protobuf:"varint,3,opt,name=User,proto3" json:"User,omitempty"`
+	Activator            int64    `protobuf:"varint,4,opt,name=Activator,proto3" json:"Activator,omitempty"`
+	Complete             bool     `protobuf:"varint,5,opt,name=Complete,proto3" json:"Complete,omitempty"`
+	Retry                bool     `protobuf:"varint,6,opt,name=Retry,proto3" json:"Retry,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -61,6 +61,20 @@ func (m *Activation) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_Activation proto.InternalMessageInfo
 
+func (m *Activation) GetID() string {
+	if m != nil {
+		return m.ID
+	}
+	return ""
+}
+
+func (m *Activation) GetTimestamp() string {
+	if m != nil {
+		return m.Timestamp
+	}
+	return ""
+}
+
 func (m *Activation) GetUser() int64 {
 	if m != nil {
 		return m.User
@@ -89,66 +103,297 @@ func (m *Activation) GetRetry() bool {
 	return false
 }
 
-type ActivationInsertResult struct {
+type User struct {
+	ID                   string   `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	ChatId               int64    `protobuf:"varint,2,opt,name=ChatId,proto3" json:"ChatId,omitempty"`
+	FirstName            string   `protobuf:"bytes,3,opt,name=FirstName,proto3" json:"FirstName,omitempty"`
+	LastName             string   `protobuf:"bytes,4,opt,name=LastName,proto3" json:"LastName,omitempty"`
+	UserName             string   `protobuf:"bytes,5,opt,name=UserName,proto3" json:"UserName,omitempty"`
+	Role                 string   `protobuf:"bytes,6,opt,name=Role,proto3" json:"Role,omitempty"`
+	Active               bool     `protobuf:"varint,7,opt,name=Active,proto3" json:"Active,omitempty"`
+	DeactiveTime         int64    `protobuf:"varint,8,opt,name=DeactiveTime,proto3" json:"DeactiveTime,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *User) Reset()         { *m = User{} }
+func (m *User) String() string { return proto.CompactTextString(m) }
+func (*User) ProtoMessage()    {}
+func (*User) Descriptor() ([]byte, []int) {
+	return fileDescriptor_ba181f2c3670a70a, []int{1}
+}
+
+func (m *User) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_User.Unmarshal(m, b)
+}
+func (m *User) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_User.Marshal(b, m, deterministic)
+}
+func (m *User) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_User.Merge(m, src)
+}
+func (m *User) XXX_Size() int {
+	return xxx_messageInfo_User.Size(m)
+}
+func (m *User) XXX_DiscardUnknown() {
+	xxx_messageInfo_User.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_User proto.InternalMessageInfo
+
+func (m *User) GetID() string {
+	if m != nil {
+		return m.ID
+	}
+	return ""
+}
+
+func (m *User) GetChatId() int64 {
+	if m != nil {
+		return m.ChatId
+	}
+	return 0
+}
+
+func (m *User) GetFirstName() string {
+	if m != nil {
+		return m.FirstName
+	}
+	return ""
+}
+
+func (m *User) GetLastName() string {
+	if m != nil {
+		return m.LastName
+	}
+	return ""
+}
+
+func (m *User) GetUserName() string {
+	if m != nil {
+		return m.UserName
+	}
+	return ""
+}
+
+func (m *User) GetRole() string {
+	if m != nil {
+		return m.Role
+	}
+	return ""
+}
+
+func (m *User) GetActive() bool {
+	if m != nil {
+		return m.Active
+	}
+	return false
+}
+
+func (m *User) GetDeactiveTime() int64 {
+	if m != nil {
+		return m.DeactiveTime
+	}
+	return 0
+}
+
+type InsertResult struct {
 	InsertId             string   `protobuf:"bytes,1,opt,name=InsertId,proto3" json:"InsertId,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ActivationInsertResult) Reset()         { *m = ActivationInsertResult{} }
-func (m *ActivationInsertResult) String() string { return proto.CompactTextString(m) }
-func (*ActivationInsertResult) ProtoMessage()    {}
-func (*ActivationInsertResult) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ba181f2c3670a70a, []int{1}
+func (m *InsertResult) Reset()         { *m = InsertResult{} }
+func (m *InsertResult) String() string { return proto.CompactTextString(m) }
+func (*InsertResult) ProtoMessage()    {}
+func (*InsertResult) Descriptor() ([]byte, []int) {
+	return fileDescriptor_ba181f2c3670a70a, []int{2}
 }
 
-func (m *ActivationInsertResult) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ActivationInsertResult.Unmarshal(m, b)
+func (m *InsertResult) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_InsertResult.Unmarshal(m, b)
 }
-func (m *ActivationInsertResult) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ActivationInsertResult.Marshal(b, m, deterministic)
+func (m *InsertResult) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_InsertResult.Marshal(b, m, deterministic)
 }
-func (m *ActivationInsertResult) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ActivationInsertResult.Merge(m, src)
+func (m *InsertResult) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_InsertResult.Merge(m, src)
 }
-func (m *ActivationInsertResult) XXX_Size() int {
-	return xxx_messageInfo_ActivationInsertResult.Size(m)
+func (m *InsertResult) XXX_Size() int {
+	return xxx_messageInfo_InsertResult.Size(m)
 }
-func (m *ActivationInsertResult) XXX_DiscardUnknown() {
-	xxx_messageInfo_ActivationInsertResult.DiscardUnknown(m)
+func (m *InsertResult) XXX_DiscardUnknown() {
+	xxx_messageInfo_InsertResult.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_ActivationInsertResult proto.InternalMessageInfo
+var xxx_messageInfo_InsertResult proto.InternalMessageInfo
 
-func (m *ActivationInsertResult) GetInsertId() string {
+func (m *InsertResult) GetInsertId() string {
 	if m != nil {
 		return m.InsertId
 	}
 	return ""
 }
 
+type Filter struct {
+	Value                string   `protobuf:"bytes,1,opt,name=Value,proto3" json:"Value,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *Filter) Reset()         { *m = Filter{} }
+func (m *Filter) String() string { return proto.CompactTextString(m) }
+func (*Filter) ProtoMessage()    {}
+func (*Filter) Descriptor() ([]byte, []int) {
+	return fileDescriptor_ba181f2c3670a70a, []int{3}
+}
+
+func (m *Filter) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Filter.Unmarshal(m, b)
+}
+func (m *Filter) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Filter.Marshal(b, m, deterministic)
+}
+func (m *Filter) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Filter.Merge(m, src)
+}
+func (m *Filter) XXX_Size() int {
+	return xxx_messageInfo_Filter.Size(m)
+}
+func (m *Filter) XXX_DiscardUnknown() {
+	xxx_messageInfo_Filter.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Filter proto.InternalMessageInfo
+
+func (m *Filter) GetValue() string {
+	if m != nil {
+		return m.Value
+	}
+	return ""
+}
+
+type GetUsersResult struct {
+	Users                []*User  `protobuf:"bytes,1,rep,name=Users,proto3" json:"Users,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *GetUsersResult) Reset()         { *m = GetUsersResult{} }
+func (m *GetUsersResult) String() string { return proto.CompactTextString(m) }
+func (*GetUsersResult) ProtoMessage()    {}
+func (*GetUsersResult) Descriptor() ([]byte, []int) {
+	return fileDescriptor_ba181f2c3670a70a, []int{4}
+}
+
+func (m *GetUsersResult) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetUsersResult.Unmarshal(m, b)
+}
+func (m *GetUsersResult) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetUsersResult.Marshal(b, m, deterministic)
+}
+func (m *GetUsersResult) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetUsersResult.Merge(m, src)
+}
+func (m *GetUsersResult) XXX_Size() int {
+	return xxx_messageInfo_GetUsersResult.Size(m)
+}
+func (m *GetUsersResult) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetUsersResult.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetUsersResult proto.InternalMessageInfo
+
+func (m *GetUsersResult) GetUsers() []*User {
+	if m != nil {
+		return m.Users
+	}
+	return nil
+}
+
+type GetActivationsResult struct {
+	Activations          []*Activation `protobuf:"bytes,1,rep,name=Activations,proto3" json:"Activations,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}      `json:"-"`
+	XXX_unrecognized     []byte        `json:"-"`
+	XXX_sizecache        int32         `json:"-"`
+}
+
+func (m *GetActivationsResult) Reset()         { *m = GetActivationsResult{} }
+func (m *GetActivationsResult) String() string { return proto.CompactTextString(m) }
+func (*GetActivationsResult) ProtoMessage()    {}
+func (*GetActivationsResult) Descriptor() ([]byte, []int) {
+	return fileDescriptor_ba181f2c3670a70a, []int{5}
+}
+
+func (m *GetActivationsResult) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetActivationsResult.Unmarshal(m, b)
+}
+func (m *GetActivationsResult) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetActivationsResult.Marshal(b, m, deterministic)
+}
+func (m *GetActivationsResult) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetActivationsResult.Merge(m, src)
+}
+func (m *GetActivationsResult) XXX_Size() int {
+	return xxx_messageInfo_GetActivationsResult.Size(m)
+}
+func (m *GetActivationsResult) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetActivationsResult.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetActivationsResult proto.InternalMessageInfo
+
+func (m *GetActivationsResult) GetActivations() []*Activation {
+	if m != nil {
+		return m.Activations
+	}
+	return nil
+}
+
 func init() {
 	proto.RegisterType((*Activation)(nil), "mongo_proto.Activation")
-	proto.RegisterType((*ActivationInsertResult)(nil), "mongo_proto.ActivationInsertResult")
+	proto.RegisterType((*User)(nil), "mongo_proto.User")
+	proto.RegisterType((*InsertResult)(nil), "mongo_proto.InsertResult")
+	proto.RegisterType((*Filter)(nil), "mongo_proto.Filter")
+	proto.RegisterType((*GetUsersResult)(nil), "mongo_proto.GetUsersResult")
+	proto.RegisterType((*GetActivationsResult)(nil), "mongo_proto.GetActivationsResult")
 }
 
 func init() { proto.RegisterFile("proto/mongo/mongo.proto", fileDescriptor_ba181f2c3670a70a) }
 
 var fileDescriptor_ba181f2c3670a70a = []byte{
-	// 191 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x12, 0x2f, 0x28, 0xca, 0x2f,
-	0xc9, 0xd7, 0xcf, 0xcd, 0xcf, 0x4b, 0x87, 0x92, 0x7a, 0x60, 0x11, 0x21, 0x6e, 0x30, 0x27, 0x1e,
-	0xcc, 0x51, 0x2a, 0xe0, 0xe2, 0x72, 0x4c, 0x2e, 0xc9, 0x2c, 0x4b, 0x2c, 0xc9, 0xcc, 0xcf, 0x13,
-	0x12, 0xe2, 0x62, 0x09, 0x2d, 0x4e, 0x2d, 0x92, 0x60, 0x54, 0x60, 0xd4, 0x60, 0x0e, 0x02, 0xb3,
-	0x85, 0x64, 0xb8, 0x38, 0xa1, 0x2a, 0xf2, 0x8b, 0x24, 0x98, 0xc0, 0x12, 0x08, 0x01, 0x21, 0x29,
-	0x2e, 0x0e, 0xe7, 0xfc, 0xdc, 0x82, 0x9c, 0xd4, 0x92, 0x54, 0x09, 0x66, 0x05, 0x46, 0x0d, 0x8e,
-	0x20, 0x38, 0x5f, 0x48, 0x84, 0x8b, 0x35, 0x28, 0xb5, 0xa4, 0xa8, 0x52, 0x82, 0x05, 0x2c, 0x01,
-	0xe1, 0x28, 0x99, 0x70, 0x89, 0x21, 0x6c, 0xf4, 0xcc, 0x2b, 0x4e, 0x2d, 0x2a, 0x09, 0x4a, 0x2d,
-	0x2e, 0xcd, 0x29, 0x01, 0x99, 0x05, 0xe1, 0x7b, 0xa6, 0x80, 0x5d, 0xc0, 0x19, 0x04, 0xe7, 0x1b,
-	0x45, 0x72, 0xb1, 0xfa, 0x82, 0x9c, 0x2d, 0x14, 0xc0, 0x25, 0x00, 0x11, 0x44, 0x72, 0xb6, 0xb8,
-	0x1e, 0x92, 0x97, 0xf4, 0x10, 0x12, 0x52, 0xca, 0x38, 0x24, 0x90, 0xad, 0x4d, 0x62, 0x03, 0xcb,
-	0x1a, 0x03, 0x02, 0x00, 0x00, 0xff, 0xff, 0xe4, 0xf0, 0xcb, 0x31, 0x31, 0x01, 0x00, 0x00,
+	// 422 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x7c, 0x52, 0xc1, 0x6a, 0xdb, 0x40,
+	0x10, 0x45, 0x92, 0xa5, 0x4a, 0x63, 0x63, 0xda, 0xad, 0xa9, 0xb7, 0x6e, 0x29, 0xaa, 0x2e, 0x15,
+	0x3d, 0xb8, 0xe0, 0x9e, 0x1c, 0x72, 0x09, 0x36, 0x76, 0x04, 0x49, 0x20, 0x4b, 0x92, 0x6b, 0x50,
+	0xe2, 0x25, 0x11, 0x48, 0x96, 0x91, 0xd6, 0x81, 0x7c, 0x47, 0xee, 0xf9, 0xaa, 0x7c, 0x50, 0xd8,
+	0xd9, 0xb5, 0x25, 0xc5, 0x4e, 0x2e, 0x62, 0xdf, 0x7b, 0xa3, 0x37, 0x6f, 0x66, 0x17, 0xfa, 0xab,
+	0x22, 0x17, 0xf9, 0xbf, 0x2c, 0x5f, 0xde, 0xe9, 0xef, 0x10, 0x19, 0xd2, 0x46, 0x70, 0x8d, 0x20,
+	0x78, 0x36, 0x00, 0x8e, 0x6e, 0x45, 0xf2, 0x10, 0x8b, 0x24, 0x5f, 0x92, 0x2e, 0x98, 0xd1, 0x94,
+	0x1a, 0xbe, 0x11, 0x7a, 0xcc, 0x8c, 0xa6, 0xe4, 0x27, 0x78, 0x17, 0x49, 0xc6, 0x4b, 0x11, 0x67,
+	0x2b, 0x6a, 0x22, 0x5d, 0x11, 0x84, 0x40, 0xeb, 0xb2, 0xe4, 0x05, 0xb5, 0x7c, 0x23, 0xb4, 0x18,
+	0x9e, 0xe5, 0x1f, 0xda, 0x2f, 0x2f, 0x68, 0x0b, 0x85, 0x8a, 0x20, 0x03, 0x70, 0x27, 0x79, 0xb6,
+	0x4a, 0xb9, 0xe0, 0xd4, 0xf6, 0x8d, 0xd0, 0x65, 0x5b, 0x4c, 0x7a, 0x60, 0x33, 0x2e, 0x8a, 0x47,
+	0xea, 0xa0, 0xa0, 0x40, 0xf0, 0x62, 0xa8, 0x26, 0x3b, 0xd1, 0xbe, 0x81, 0x33, 0xb9, 0x8f, 0x45,
+	0xb4, 0xc0, 0x5c, 0x16, 0xd3, 0x48, 0x06, 0x98, 0x25, 0x45, 0x29, 0xce, 0xe2, 0x8c, 0x63, 0x32,
+	0x8f, 0x55, 0x84, 0x0c, 0x70, 0x12, 0x6b, 0xb1, 0x85, 0xe2, 0x16, 0x4b, 0x4d, 0x76, 0x42, 0xcd,
+	0x56, 0xda, 0x06, 0xcb, 0x51, 0x59, 0x9e, 0x72, 0xcc, 0xe6, 0x31, 0x3c, 0xcb, 0x04, 0x38, 0x19,
+	0xa7, 0x9f, 0x30, 0xb1, 0x46, 0x24, 0x80, 0xce, 0x94, 0xc7, 0x78, 0x96, 0xbb, 0xa2, 0x2e, 0xe6,
+	0x6b, 0x70, 0xc1, 0x5f, 0xe8, 0x44, 0xcb, 0x92, 0x17, 0x82, 0xf1, 0x72, 0x9d, 0x0a, 0xd9, 0x5b,
+	0xe1, 0x68, 0xa1, 0x67, 0xdc, 0xe2, 0xe0, 0x17, 0x38, 0xb3, 0x24, 0x15, 0xbc, 0x90, 0x2b, 0xba,
+	0x8a, 0xd3, 0x35, 0xd7, 0x25, 0x0a, 0x04, 0x63, 0xe8, 0xce, 0xb9, 0x90, 0x51, 0x4b, 0xed, 0xf6,
+	0x07, 0x6c, 0x84, 0xd4, 0xf0, 0xad, 0xb0, 0x3d, 0xfa, 0x32, 0xac, 0x5d, 0xf9, 0x50, 0x2a, 0x4c,
+	0xe9, 0xc1, 0x39, 0xf4, 0xe6, 0x5c, 0x54, 0x0f, 0x60, 0x63, 0x30, 0x86, 0x76, 0x8d, 0xd4, 0x36,
+	0xfd, 0x86, 0x4d, 0xa5, 0xb3, 0x7a, 0xed, 0xe8, 0xc9, 0x04, 0xfb, 0x54, 0xd6, 0x91, 0x19, 0x7c,
+	0x56, 0x33, 0xd4, 0x1e, 0xd8, 0x7b, 0x1e, 0x83, 0xef, 0x0d, 0xa1, 0xb1, 0x9b, 0x63, 0x9c, 0xaf,
+	0xd6, 0x83, 0x7c, 0x6d, 0x14, 0xab, 0xe5, 0x0c, 0x7e, 0x37, 0xc8, 0xbd, 0x63, 0x1d, 0x00, 0x28,
+	0x67, 0x7c, 0x51, 0xbb, 0x6b, 0xf9, 0x28, 0xc5, 0x21, 0xb8, 0x9b, 0x2d, 0xef, 0xef, 0xff, 0xe3,
+	0x6d, 0xff, 0xda, 0x8d, 0xdc, 0x38, 0xc8, 0xfe, 0x7f, 0x0d, 0x00, 0x00, 0xff, 0xff, 0xf9, 0x34,
+	0xd4, 0xee, 0x96, 0x03, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -163,7 +408,10 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MongoClient interface {
-	InsertActivation(ctx context.Context, in *Activation, opts ...grpc.CallOption) (*ActivationInsertResult, error)
+	InsertActivation(ctx context.Context, in *Activation, opts ...grpc.CallOption) (*InsertResult, error)
+	GetActivations(ctx context.Context, in *Filter, opts ...grpc.CallOption) (*GetActivationsResult, error)
+	InsertUser(ctx context.Context, in *User, opts ...grpc.CallOption) (*InsertResult, error)
+	GetUsers(ctx context.Context, in *Filter, opts ...grpc.CallOption) (*GetUsersResult, error)
 }
 
 type mongoClient struct {
@@ -174,9 +422,36 @@ func NewMongoClient(cc *grpc.ClientConn) MongoClient {
 	return &mongoClient{cc}
 }
 
-func (c *mongoClient) InsertActivation(ctx context.Context, in *Activation, opts ...grpc.CallOption) (*ActivationInsertResult, error) {
-	out := new(ActivationInsertResult)
+func (c *mongoClient) InsertActivation(ctx context.Context, in *Activation, opts ...grpc.CallOption) (*InsertResult, error) {
+	out := new(InsertResult)
 	err := c.cc.Invoke(ctx, "/mongo_proto.Mongo/InsertActivation", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *mongoClient) GetActivations(ctx context.Context, in *Filter, opts ...grpc.CallOption) (*GetActivationsResult, error) {
+	out := new(GetActivationsResult)
+	err := c.cc.Invoke(ctx, "/mongo_proto.Mongo/GetActivations", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *mongoClient) InsertUser(ctx context.Context, in *User, opts ...grpc.CallOption) (*InsertResult, error) {
+	out := new(InsertResult)
+	err := c.cc.Invoke(ctx, "/mongo_proto.Mongo/InsertUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *mongoClient) GetUsers(ctx context.Context, in *Filter, opts ...grpc.CallOption) (*GetUsersResult, error) {
+	out := new(GetUsersResult)
+	err := c.cc.Invoke(ctx, "/mongo_proto.Mongo/GetUsers", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -185,15 +460,27 @@ func (c *mongoClient) InsertActivation(ctx context.Context, in *Activation, opts
 
 // MongoServer is the server API for Mongo service.
 type MongoServer interface {
-	InsertActivation(context.Context, *Activation) (*ActivationInsertResult, error)
+	InsertActivation(context.Context, *Activation) (*InsertResult, error)
+	GetActivations(context.Context, *Filter) (*GetActivationsResult, error)
+	InsertUser(context.Context, *User) (*InsertResult, error)
+	GetUsers(context.Context, *Filter) (*GetUsersResult, error)
 }
 
 // UnimplementedMongoServer can be embedded to have forward compatible implementations.
 type UnimplementedMongoServer struct {
 }
 
-func (*UnimplementedMongoServer) InsertActivation(ctx context.Context, req *Activation) (*ActivationInsertResult, error) {
+func (*UnimplementedMongoServer) InsertActivation(ctx context.Context, req *Activation) (*InsertResult, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method InsertActivation not implemented")
+}
+func (*UnimplementedMongoServer) GetActivations(ctx context.Context, req *Filter) (*GetActivationsResult, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetActivations not implemented")
+}
+func (*UnimplementedMongoServer) InsertUser(ctx context.Context, req *User) (*InsertResult, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method InsertUser not implemented")
+}
+func (*UnimplementedMongoServer) GetUsers(ctx context.Context, req *Filter) (*GetUsersResult, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUsers not implemented")
 }
 
 func RegisterMongoServer(s *grpc.Server, srv MongoServer) {
@@ -218,6 +505,60 @@ func _Mongo_InsertActivation_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Mongo_GetActivations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Filter)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MongoServer).GetActivations(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mongo_proto.Mongo/GetActivations",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MongoServer).GetActivations(ctx, req.(*Filter))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Mongo_InsertUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(User)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MongoServer).InsertUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mongo_proto.Mongo/InsertUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MongoServer).InsertUser(ctx, req.(*User))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Mongo_GetUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Filter)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MongoServer).GetUsers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mongo_proto.Mongo/GetUsers",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MongoServer).GetUsers(ctx, req.(*Filter))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Mongo_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "mongo_proto.Mongo",
 	HandlerType: (*MongoServer)(nil),
@@ -225,6 +566,18 @@ var _Mongo_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "InsertActivation",
 			Handler:    _Mongo_InsertActivation_Handler,
+		},
+		{
+			MethodName: "GetActivations",
+			Handler:    _Mongo_GetActivations_Handler,
+		},
+		{
+			MethodName: "InsertUser",
+			Handler:    _Mongo_InsertUser_Handler,
+		},
+		{
+			MethodName: "GetUsers",
+			Handler:    _Mongo_GetUsers_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

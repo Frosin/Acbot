@@ -2,7 +2,6 @@ package main
 
 import (
 	pb "acbot/proto/mongo"
-	"context"
 	"fmt"
 	"log"
 	"net"
@@ -10,19 +9,19 @@ import (
 	"google.golang.org/grpc"
 )
 
-type Server struct {
-	pb.UnimplementedMongoServer
-	MongoRepository mongoRepository
-}
+// type Server struct {
+// 	pb.UnimplementedMongoServer
+// 	MongoRepository mongoRepository
+// }
 
-func (s *Server) InsertActivation(ctx context.Context, req *pb.Activation) (*pb.ActivationInsertResult, error) {
-	fmt.Println("InsertActivation called!", req)
+// func (s *Server) InsertActivation(ctx context.Context, req *pb.Activation) (*pb.ActivationInsertResult, error) {
+// 	fmt.Println("InsertActivation called!", req)
 
-	//s.MongoRepository.InsertActivation()
-	return &pb.ActivationInsertResult{
-		InsertId: "success",
-	}, nil
-}
+// 	//s.MongoRepository.InsertActivation()
+// 	return &pb.ActivationInsertResult{
+// 		InsertId: "success",
+// 	}, nil
+// }
 
 func panicIfError(message string, err error) {
 	if err != nil {
@@ -31,9 +30,12 @@ func panicIfError(message string, err error) {
 }
 
 func main() {
-	var mongoServer Server
+	var mongoServer mongoRepository
 	//err := mongoServer.MongoRepository.Connect("")
-	err := mongoServer.MongoRepository.Connect("mongodb://root:123456@localhost")
+	//err := mongoServer.MongoRepository.Connect("mongodb://root:123456@localhost")
+
+	//err := mongoServer.Connect("mongodb://root:123456@localhost")
+	err := mongoServer.Connect("")
 
 	panicIfError("Failed to connect: ", err)
 	fmt.Println("Starting server...")
@@ -42,7 +44,7 @@ func main() {
 	panicIfError("Failed to listen", err)
 
 	s := grpc.NewServer()
-	pb.RegisterMongoServer(s, &Server{})
+	pb.RegisterMongoServer(s, &mongoServer)
 
 	err = s.Serve(l)
 	panicIfError("Failed to serve", err)

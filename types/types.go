@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"time"
 
+	pb "acbot/proto/mongo"
+
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -41,4 +43,75 @@ func (a *Activation) MarshalBinary() ([]byte, error) {
 
 func (a *Activation) UnmarshalBinary(data []byte) error {
 	return json.Unmarshal(data, a)
+}
+
+// function convert activation type from generated proto file to our standart activation type
+func GetActivationProto2My(protoAct *pb.Activation) (*Activation, error) {
+	var id primitive.ObjectID
+	timestamp, err := time.Parse(time.RFC3339, protoAct.GetTimestamp())
+	if err != nil {
+		return nil, err
+	}
+	strId := protoAct.GetID()
+	if len(strId) == 36 {
+		id, err = primitive.ObjectIDFromHex(strId[10 : len(strId)-2])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return &Activation{
+		ID:        id,
+		Timestamp: timestamp,
+		User:      protoAct.GetUser(),
+		Activator: protoAct.GetActivator(),
+		Complete:  protoAct.GetComplete(),
+		Retry:     protoAct.GetRetry(),
+	}, nil
+}
+
+// function convert type.Activation to activation from proto genered go file
+func GetActivationMy2Proto(activation *Activation) *pb.Activation {
+	return &pb.Activation{
+		ID:        activation.ID.String(),
+		Timestamp: activation.Timestamp.Format(time.RFC3339),
+		User:      activation.User,
+		Activator: activation.Activator,
+		Complete:  activation.Complete,
+		Retry:     activation.Retry,
+	}
+}
+
+func GetUserProto2My(protoUser *pb.User) (*User, error) {
+	var id primitive.ObjectID
+	var err error
+	strId := protoUser.GetID()
+	if len(strId) == 36 {
+		id, err = primitive.ObjectIDFromHex(strId[10 : len(strId)-2])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return &User{
+		ID:           id,
+		ChatId:       protoUser.ChatId,
+		FirstName:    protoUser.FirstName,
+		LastName:     protoUser.LastName,
+		UserName:     protoUser.UserName,
+		Role:         protoUser.Role,
+		Active:       protoUser.Active,
+		DeactiveTime: protoUser.DeactiveTime,
+	}, nil
+}
+
+func GetUserMy2Proto(user *User) *pb.User {
+	return &pb.User{
+		ID:           user.ID.String(),
+		ChatId:       user.ChatId,
+		FirstName:    user.FirstName,
+		LastName:     user.LastName,
+		UserName:     user.UserName,
+		Role:         user.Role,
+		Active:       user.Active,
+		DeactiveTime: user.DeactiveTime,
+	}
 }

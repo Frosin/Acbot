@@ -1,5 +1,5 @@
 queue/.env
-db/.env
+store/.env
 desc.txt
 cover.html
 cover.out
