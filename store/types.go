@@ -3,7 +3,11 @@ package main
 import (
 	pb "acbot/proto/mongo"
 	"acbot/types"
+	"bytes"
 	"context"
+	"encoding/json"
+	"fmt"
+	"log"
 	"os"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -50,29 +54,91 @@ func (a *mongoRepository) Connect(uri string) (err error) {
 }
 
 func (a *mongoRepository) InsertActivation(ctx context.Context, req *pb.Activation) (*pb.InsertResult, error) {
-	a.checkConnect()
 	activation, err := types.GetActivationProto2My(req)
 	if err != nil {
 		return &pb.InsertResult{}, err
 	}
-	activation.ID = primitive.NewObjectID()
+	activation.ID = primitive.NewObjectID().Hex()
 	mongoResult, err := a.Mongo.Database(a.DbName).Collection(a.ActivationCollection).Insert(activation)
 	return &pb.InsertResult{
-		InsertId: mongoResult.String(),
+		InsertId: mongoResult,
 	}, err
 }
 
 func (a *mongoRepository) InsertUser(ctx context.Context, req *pb.User) (*pb.InsertResult, error) {
-	a.checkConnect()
 	user, err := types.GetUserProto2My(req)
 	if err != nil {
 		return &pb.InsertResult{}, err
 	}
-	user.ID = primitive.NewObjectID()
+	user.ID = primitive.NewObjectID().Hex()
 	mongoResult, err := a.Mongo.Database(a.DbName).Collection(a.UserCollection).Insert(user)
 	return &pb.InsertResult{
-		InsertId: mongoResult.String(),
+		InsertId: mongoResult,
 	}, err
+}
+
+func (a *mongoRepository) GetActivations(ctx context.Context, req *pb.Filter) (*pb.GetActivationsResult, error) {
+
+	var filter primitive.M
+	err := json.Unmarshal([]byte(req.GetValue()), &filter)
+	if err != nil {
+		return &pb.GetActivationsResult{}, err
+	}
+
+	getResult, err := a.Mongo.Database(a.DbName).Collection(a.ActivationCollection).GetActivationsByFilter(filter)
+	if err != nil {
+		return &pb.GetActivationsResult{}, err
+	}
+	//
+
+	getResult2, _ := a.Mongo.Database(a.DbName).Collection(a.ActivationCollection).GetActivationsByFilter(primitive.M{
+		"user": 777,
+	})
+
+	var data string
+	data = filter["_id"].(string)
+
+	if len(getResult2) > 0 {
+		fmt.Println("result=", getResult2[0].ID)
+		fmt.Println("filter=", data)
+		if bytes.Equal([]byte(getResult2[0].ID), []byte(data)) {
+			fmt.Println("bytes Equal!")
+		} else {
+			fmt.Println("No equal")
+		}
+	} else {
+		fmt.Println("Len == 0")
+	}
+
+	log.Println("new_filter=", filter, filter["_id"], err)
+	log.Println("get_result=", getResult)
+	//
+	var protoResult []*pb.Activation
+	for _, activation := range getResult {
+		protoResult = append(protoResult, types.GetActivationMy2Proto(activation))
+	}
+	return &pb.GetActivationsResult{
+		Activations: protoResult,
+	}, nil
+}
+
+func (a *mongoRepository) GetUsers(ctx context.Context, req *pb.Filter) (*pb.GetUsersResult, error) {
+	var filter primitive.M
+	err := json.Unmarshal([]byte(req.GetValue()), &filter)
+	if err != nil {
+		return &pb.GetUsersResult{}, err
+	}
+	getResult, err := a.Mongo.Database(a.DbName).Collection(a.UserCollection).GetUsersByFilter(filter)
+	if err != nil {
+		return &pb.GetUsersResult{}, err
+	}
+	var protoResult []*pb.User
+	for _, user := range getResult {
+		protoResult = append(protoResult, types.GetUserMy2Proto(user))
+	}
+	return &pb.GetUsersResult{
+		Users: protoResult,
+	}, nil
 }
 
 /*

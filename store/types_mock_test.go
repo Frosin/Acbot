@@ -15,7 +15,7 @@ func TestMockInsertActivations(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 	mongoMock := mocks.NewMockMongoInterface(mockCtrl)
-	mongoMock.EXPECT().InsertActivation(testAct).Return(testAct.ID.String(), nil)
+	mongoMock.EXPECT().InsertActivation(testAct).Return(testAct.ID, nil)
 	_, err := mongoMock.InsertActivation(testAct)
 	assert.NoError(t, err, "Can't insert activation!")
 }
@@ -39,7 +39,7 @@ func TestMockInsertUser(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 	mongoMock := mocks.NewMockMongoInterface(mockCtrl)
-	mongoMock.EXPECT().InsertUser(testUser).Return(testUser.ID.String(), nil)
+	mongoMock.EXPECT().InsertUser(testUser).Return(testUser.ID, nil)
 	_, err := mongoMock.InsertUser(testUser)
 	assert.NoError(t, err, "Can't insert activation!")
 }

@@ -13,7 +13,7 @@ import (
 )
 
 var testAct = &types.Activation{
-	ID:        primitive.NewObjectID(),
+	ID:        primitive.NewObjectID().Hex(),
 	Timestamp: time.Now(),
 	User:      123456,
 	Activator: 9876543,
@@ -22,7 +22,7 @@ var testAct = &types.Activation{
 }
 
 var testUser = &types.User{
-	ID:           primitive.NewObjectID(),
+	ID:           primitive.NewObjectID().Hex(),
 	ChatId:       0,
 	FirstName:    "Ivan",
 	LastName:     "Klepikov",
@@ -97,7 +97,7 @@ func TestParseInsertIdError(t *testing.T) {
 
 func TestGetActivationsByFilter(t *testing.T) {
 	var testAct1 = &types.Activation{
-		ID:        primitive.NewObjectID(),
+		ID:        primitive.NewObjectID().Hex(),
 		Timestamp: time.Now(),
 		User:      111111,
 		Activator: 9876543,
@@ -105,7 +105,7 @@ func TestGetActivationsByFilter(t *testing.T) {
 		Retry:     false,
 	}
 	var testAct2 = &types.Activation{
-		ID:        primitive.NewObjectID(),
+		ID:        primitive.NewObjectID().Hex(),
 		Timestamp: time.Now(),
 		User:      222222,
 		Activator: 9876543,
@@ -113,7 +113,7 @@ func TestGetActivationsByFilter(t *testing.T) {
 		Retry:     false,
 	}
 	var testAct3 = &types.Activation{
-		ID:        primitive.NewObjectID(),
+		ID:        primitive.NewObjectID().Hex(),
 		Timestamp: time.Now(),
 		User:      333333,
 		Activator: 8245677,
@@ -135,7 +135,7 @@ func TestGetActivationsByFilter(t *testing.T) {
 
 func TestGetUsersByFilter(t *testing.T) {
 	var testUser1 = &types.User{
-		ID:           primitive.NewObjectID(),
+		ID:           primitive.NewObjectID().Hex(),
 		ChatId:       0,
 		FirstName:    "Ivan",
 		LastName:     "Klepikov",
@@ -145,7 +145,7 @@ func TestGetUsersByFilter(t *testing.T) {
 		DeactiveTime: 0,
 	}
 	var testUser2 = &types.User{
-		ID:           primitive.NewObjectID(),
+		ID:           primitive.NewObjectID().Hex(),
 		ChatId:       0,
 		FirstName:    "Ivan",
 		LastName:     "Klepikov",
@@ -155,7 +155,7 @@ func TestGetUsersByFilter(t *testing.T) {
 		DeactiveTime: 0,
 	}
 	var testUser3 = &types.User{
-		ID:           primitive.NewObjectID(),
+		ID:           primitive.NewObjectID().Hex(),
 		ChatId:       0,
 		FirstName:    "Ivan",
 		LastName:     "Klepikov",

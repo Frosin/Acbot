@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/joho/godotenv"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -36,7 +35,7 @@ func checkNoEmptyEnvs(envs []string) bool {
 	return true
 }
 
-// Get redis options from .env file
+// Get mongo options from .env file
 func GetDbUri(envFile string) (string, error) {
 	var err error
 	if envFile == "" {
@@ -88,16 +87,17 @@ func (mc *MongoClient) Connect(connectionUri string) (err error) {
 	return err
 }
 
-func (mc *MongoCollection) Insert(document interface{}) (*primitive.ObjectID, error) {
+func (mc *MongoCollection) Insert(document interface{}) (string, error) {
 	insertResult, err := mc.Collection.InsertOne(context.Background(), document)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	objectInsertId, ok := insertResult.InsertedID.(primitive.ObjectID)
+	/*objectInsertId, ok := insertResult.InsertedID.(primitive.ObjectID)
 	if false == ok {
-		return nil, errors.New("Can't parse InsertId to ObjectId!")
-	}
-	return &objectInsertId, err
+		return "", errors.New("Can't parse InsertId to ObjectId!")
+	}*/
+	stringResult := insertResult.InsertedID.(string)
+	return stringResult, err
 }
 
 func (mc *MongoCollection) GetByFilter(filter interface{}) (*mongo.Cursor, error) {

@@ -2,6 +2,11 @@ package main
 
 // integration tests
 import (
+	pb "acbot/proto/mongo"
+	"acbot/types"
+	"context"
+	"encoding/json"
+	"log"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -26,22 +31,51 @@ func getRepository(t *testing.T) *mongoRepository {
 
 func TestInsertGetActivation(t *testing.T) {
 	mr := getRepository(t)
-	insertId, err := mr.InsertActivation(testAct)
+	//
+	testAct.User = 777
+	//
+	log.Println("testAct=", testAct)
+	insertId, err := mr.InsertActivation(context.Background(), types.GetActivationMy2Proto(testAct))
 	assert.NoError(t, err, "Can't insertActivation!")
-	getResult, err := mr.GetActivations(bson.D{primitive.E{Key: "_id", Value: insertId}})
+	//filter := strings.Join([]string{`{"_id": "`, insertId.GetInsertId(), `"}`}, "")
+
+	filter := primitive.M{"_id": insertId.GetInsertId()}
+	//filter := primitive.M{"user": 777}
+	byteFilter, err := json.Marshal(filter)
+	//
+	//log.Println("filter=", string(byteFilter), "insertedId=", insertId.GetInsertId(), "len1=", len(string(byteFilter)), "len2=", len(strings.ReplaceAll(string(byteFilter), "\\", "")))
+	//log.Println("string=", strings.ReplaceAll(string(byteFilter), "\\", ""))
+	//
+	assert.NoError(t, err, "Cant't marshal filter! Error=", err)
+	getResult, err := mr.GetActivations(context.Background(), &pb.Filter{
+		Value: string(byteFilter), //strings.ReplaceAll(string(byteFilter), "\\", ""),
+	})
+	//
+	log.Println("string filter=", string(byteFilter), len(string(byteFilter)))
+	log.Println("result ins=", insertId.GetInsertId())
+	if len(getResult.GetActivations()) > 0 {
+		log.Println("result mon=", getResult.GetActivations()[0].GetID())
+	}
+	log.Println("filter=", filter)
+
+	//
 	assert.NoError(t, err, "Can't get activations from Mongo!")
-	assert.Equal(t, 1, len(getResult), "Insert activation error!")
+	assert.Equal(t, 1, len(getResult.GetActivations()), "Insert activation error!")
 	err = mr.Mongo.Database(mr.DbName).Collection(mr.ActivationCollection).Drop()
 	assert.NoError(t, err, "Can't drop test collection!")
 }
 
 func TestInsertGetUser(t *testing.T) {
 	mr := getRepository(t)
-	insertId, err := mr.InsertUser(testUser)
+	insertId, err := mr.InsertUser(context.Background(), types.GetUserMy2Proto(testUser))
 	assert.NoError(t, err, "Can't insertUser!")
-	getResult, err := mr.GetUsers(bson.D{primitive.E{Key: "_id", Value: insertId}})
+	byteFilter, err := json.Marshal(bson.M{"_id": insertId.GetInsertId()})
+	assert.Error(t, err, "Cant't marshal filter!")
+	getResult, err := mr.GetUsers(context.Background(), &pb.Filter{
+		Value: string(byteFilter),
+	})
 	assert.NoError(t, err, "Can't get user from Mongo!")
-	assert.Equal(t, 1, len(getResult), "Insert user error!")
+	assert.Equal(t, 1, len(getResult.GetUsers()), "Insert user error!")
 	err = mr.Mongo.Database(mr.DbName).Collection(mr.UserCollection).Drop()
 	assert.NoError(t, err, "Can't drop test collection!")
 }
@@ -51,6 +85,6 @@ func TestInsertWithoutConnect(t *testing.T) {
 		Connected: false,
 	}
 	assert.Panics(t, func() {
-		mRep.InsertActivation(testAct)
+		mRep.InsertActivation(context.Background(), types.GetActivationMy2Proto(testAct))
 	})
 }
