@@ -3,11 +3,8 @@ package main
 import (
 	pb "acbot/proto/mongo"
 	"acbot/types"
-	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
-	"log"
 	"os"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -32,12 +29,6 @@ type mongoRepository struct {
 	DbName               string
 }
 
-func (a *mongoRepository) checkConnect() {
-	if a.Connected == false {
-		panic("No connection to database! Connect() not called!")
-	}
-}
-
 func (a *mongoRepository) Connect(uri string) (err error) {
 	if uri == "" {
 		uri, err = GetDbUri("")
@@ -45,9 +36,6 @@ func (a *mongoRepository) Connect(uri string) (err error) {
 		a.ActivationCollection = os.Getenv("MONGO_ACTIVATION_COLLECTION")
 		a.DbName = os.Getenv("MONGO_DB")
 	}
-	//
-	//log.Println("*before Connect*", a.Mongo)
-	//
 	err = a.Mongo.Connect(uri)
 	a.Connected = true
 	return
@@ -66,10 +54,7 @@ func (a *mongoRepository) InsertActivation(ctx context.Context, req *pb.Activati
 }
 
 func (a *mongoRepository) InsertUser(ctx context.Context, req *pb.User) (*pb.InsertResult, error) {
-	user, err := types.GetUserProto2My(req)
-	if err != nil {
-		return &pb.InsertResult{}, err
-	}
+	user := types.GetUserProto2My(req)
 	user.ID = primitive.NewObjectID().Hex()
 	mongoResult, err := a.Mongo.Database(a.DbName).Collection(a.UserCollection).Insert(user)
 	return &pb.InsertResult{
@@ -78,41 +63,15 @@ func (a *mongoRepository) InsertUser(ctx context.Context, req *pb.User) (*pb.Ins
 }
 
 func (a *mongoRepository) GetActivations(ctx context.Context, req *pb.Filter) (*pb.GetActivationsResult, error) {
-
 	var filter primitive.M
 	err := json.Unmarshal([]byte(req.GetValue()), &filter)
 	if err != nil {
 		return &pb.GetActivationsResult{}, err
 	}
-
 	getResult, err := a.Mongo.Database(a.DbName).Collection(a.ActivationCollection).GetActivationsByFilter(filter)
 	if err != nil {
 		return &pb.GetActivationsResult{}, err
 	}
-	//
-
-	getResult2, _ := a.Mongo.Database(a.DbName).Collection(a.ActivationCollection).GetActivationsByFilter(primitive.M{
-		"user": 777,
-	})
-
-	var data string
-	data = filter["_id"].(string)
-
-	if len(getResult2) > 0 {
-		fmt.Println("result=", getResult2[0].ID)
-		fmt.Println("filter=", data)
-		if bytes.Equal([]byte(getResult2[0].ID), []byte(data)) {
-			fmt.Println("bytes Equal!")
-		} else {
-			fmt.Println("No equal")
-		}
-	} else {
-		fmt.Println("Len == 0")
-	}
-
-	log.Println("new_filter=", filter, filter["_id"], err)
-	log.Println("get_result=", getResult)
-	//
 	var protoResult []*pb.Activation
 	for _, activation := range getResult {
 		protoResult = append(protoResult, types.GetActivationMy2Proto(activation))

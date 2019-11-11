@@ -108,6 +108,9 @@ func (mc *MongoCollection) GetByFilter(filter interface{}) (*mongo.Cursor, error
 
 func (mc *MongoCollection) GetActivationsByFilter(filter interface{}) ([]*types.Activation, error) {
 	data, err := mc.GetByFilter(filter)
+	//
+	//log.Println("data=", data, "err=", err, "filter=", filter)
+	//
 	if err != nil {
 		return nil, err
 	}
@@ -115,6 +118,9 @@ func (mc *MongoCollection) GetActivationsByFilter(filter interface{}) ([]*types.
 	for data.Next(context.Background()) {
 		var elem *types.Activation
 		err := data.Decode(&elem)
+		//
+		//log.Println("err=", err, "elem=", elem)
+		//
 		if err != nil {
 			return nil, err
 		}

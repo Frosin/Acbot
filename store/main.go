@@ -9,6 +9,9 @@ import (
 	"google.golang.org/grpc"
 )
 
+// Test coverage
+// go test -coverprofile=cover.out ./store && go tool cover -html=cover.out -o cover.html
+
 // type Server struct {
 // 	pb.UnimplementedMongoServer
 // 	MongoRepository mongoRepository

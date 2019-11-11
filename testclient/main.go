@@ -3,6 +3,7 @@ package main
 import (
 	pb "acbot/proto/mongo"
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"time"
@@ -24,10 +25,10 @@ func main() {
 	conn, err := grpc.Dial("localhost:8081", grpc.WithInsecure())
 
 	var testAct = &pb.Activation{
-		ID:        primitive.NewObjectID().String(),
+		ID:        "",
 		Timestamp: time.Now().Format(time.RFC3339),
-		User:      123456,
-		Activator: 9876543,
+		User:      777777,
+		Activator: 888888,
 		Complete:  false,
 		Retry:     false,
 	}
@@ -46,5 +47,17 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error by insert!", err)
 	}
-	fmt.Println(r.InsertId)
+	fmt.Println("Inserted=", r.InsertId)
+
+	filter := primitive.M{
+		"complete": false,
+	}
+	byteFilter, err := json.Marshal(filter)
+	gr, err := c.GetActivations(context.Background(), &pb.Filter{
+		Value: string(byteFilter),
+	})
+	fmt.Printf("Get result=%v type=%T\n", len(gr.GetActivations()), gr)
+	for i, v := range gr.GetActivations() {
+		fmt.Printf("%v. Type=%T, value=%v\n", i, v, v)
+	}
 }

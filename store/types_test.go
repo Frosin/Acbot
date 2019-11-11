@@ -6,7 +6,6 @@ import (
 	"acbot/types"
 	"context"
 	"encoding/json"
-	"log"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -31,34 +30,14 @@ func getRepository(t *testing.T) *mongoRepository {
 
 func TestInsertGetActivation(t *testing.T) {
 	mr := getRepository(t)
-	//
-	testAct.User = 777
-	//
-	log.Println("testAct=", testAct)
 	insertId, err := mr.InsertActivation(context.Background(), types.GetActivationMy2Proto(testAct))
 	assert.NoError(t, err, "Can't insertActivation!")
-	//filter := strings.Join([]string{`{"_id": "`, insertId.GetInsertId(), `"}`}, "")
-
 	filter := primitive.M{"_id": insertId.GetInsertId()}
-	//filter := primitive.M{"user": 777}
 	byteFilter, err := json.Marshal(filter)
-	//
-	//log.Println("filter=", string(byteFilter), "insertedId=", insertId.GetInsertId(), "len1=", len(string(byteFilter)), "len2=", len(strings.ReplaceAll(string(byteFilter), "\\", "")))
-	//log.Println("string=", strings.ReplaceAll(string(byteFilter), "\\", ""))
-	//
 	assert.NoError(t, err, "Cant't marshal filter! Error=", err)
 	getResult, err := mr.GetActivations(context.Background(), &pb.Filter{
-		Value: string(byteFilter), //strings.ReplaceAll(string(byteFilter), "\\", ""),
+		Value: string(byteFilter),
 	})
-	//
-	log.Println("string filter=", string(byteFilter), len(string(byteFilter)))
-	log.Println("result ins=", insertId.GetInsertId())
-	if len(getResult.GetActivations()) > 0 {
-		log.Println("result mon=", getResult.GetActivations()[0].GetID())
-	}
-	log.Println("filter=", filter)
-
-	//
 	assert.NoError(t, err, "Can't get activations from Mongo!")
 	assert.Equal(t, 1, len(getResult.GetActivations()), "Insert activation error!")
 	err = mr.Mongo.Database(mr.DbName).Collection(mr.ActivationCollection).Drop()
@@ -69,8 +48,9 @@ func TestInsertGetUser(t *testing.T) {
 	mr := getRepository(t)
 	insertId, err := mr.InsertUser(context.Background(), types.GetUserMy2Proto(testUser))
 	assert.NoError(t, err, "Can't insertUser!")
-	byteFilter, err := json.Marshal(bson.M{"_id": insertId.GetInsertId()})
-	assert.Error(t, err, "Cant't marshal filter!")
+	filter := primitive.M{"_id": insertId.GetInsertId()}
+	byteFilter, err := json.Marshal(filter)
+	assert.NoError(t, err, "Cant't marshal filter! Error=", err)
 	getResult, err := mr.GetUsers(context.Background(), &pb.Filter{
 		Value: string(byteFilter),
 	})
@@ -87,4 +67,49 @@ func TestInsertWithoutConnect(t *testing.T) {
 	assert.Panics(t, func() {
 		mRep.InsertActivation(context.Background(), types.GetActivationMy2Proto(testAct))
 	})
+}
+
+func TestConvertActivationProto2My(t *testing.T) {
+	testActProto := &pb.Activation{
+		ID:        "num _id",
+		Timestamp: "bad timestamp!",
+		User:      98765,
+		Activator: 12345,
+		Complete:  false,
+		Retry:     false,
+	}
+	mr := getRepository(t)
+	_, err := mr.InsertActivation(context.Background(), testActProto)
+	assert.Error(t, err, "Failed to get timestamp parse error!")
+}
+
+func TestGetUnmarshalError(t *testing.T) {
+	filter := "its bad filter value!"
+	mr := getRepository(t)
+	_, err := mr.GetActivations(context.Background(), &pb.Filter{
+		Value: filter,
+	})
+	assert.Error(t, err, "Failed to get unmarshal filter error!")
+	_, err = mr.GetUsers(context.Background(), &pb.Filter{
+		Value: filter,
+	})
+	assert.Error(t, err, "Failed to get unmarshal filter error!")
+}
+
+func TestGetByFilterError(t *testing.T) {
+	mr := getRepository(t)
+	_, mCol := getClientConnection(t)
+	var badAct = &BadTestStruct{
+		ID:        "it's mongo _id",
+		Activator: "it's bad activator's num!",
+	}
+	mCol.Insert(badAct)
+
+	filter := bson.D{primitive.E{Key: "activator", Value: "it's bad activator's num!"}}
+	byteFilter, err := json.Marshal(filter)
+	assert.NoError(t, err, "Error in marshalling filter!")
+	_, err = mr.GetActivations(context.Background(), &pb.Filter{
+		Value: string(byteFilter),
+	})
+	assert.Error(t, err, "Failed to get GetByFilter error!")
 }
